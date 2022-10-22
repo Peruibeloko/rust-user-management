@@ -1,7 +1,7 @@
 mod user;
 
 use std::io::{self, Write};
-use user::user::User;
+use user::User;
 
 enum MenuActions {
     Create,
@@ -11,7 +11,7 @@ enum MenuActions {
 }
 
 fn main() {
-    let mut user_list: Vec<user::user::User> = vec![];
+    let mut user_list: Vec<user::User> = vec![];
     loop {
         print_menu();
         match get_user_input() {
@@ -25,7 +25,7 @@ fn main() {
 }
 
 fn create_user(user_list: &mut Vec<User>) {
-    user_list.push(user::user::create());
+    user_list.push(user::create());
 
     println!("\nUsuário criado!\n")
 }
