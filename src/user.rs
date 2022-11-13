@@ -1,6 +1,6 @@
 use crate::prompt_user;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct User {
     pub name: String,
     pub age: u8,

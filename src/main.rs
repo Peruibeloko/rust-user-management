@@ -1,6 +1,9 @@
+mod persistence;
+mod shared;
 mod user;
 
-use std::io::{self, Write};
+use persistence::{read_users_from_file, write_users_to_file};
+use shared::prompt_user;
 use user::User;
 
 enum MenuActions {
@@ -8,10 +11,12 @@ enum MenuActions {
     List,
     Read,
     Delete,
+    Exit,
 }
 
 fn main() {
-    let mut user_list: Vec<user::User> = vec![];
+    let mut user_list: Vec<user::User> = read_users_from_file("users".to_string());
+
     loop {
         print_menu();
         match get_user_input() {
@@ -19,8 +24,33 @@ fn main() {
             Some(MenuActions::Create) => create_user(&mut user_list),
             Some(MenuActions::Read) => read_user(&user_list),
             Some(MenuActions::Delete) => println!("Apagar"),
+            Some(MenuActions::Exit) => exit_program(&user_list),
             None => println!("\n! Opção inválida !\n"),
         }
+    }
+}
+
+fn print_menu() {
+    println!(
+        "LISTAR todos usuários\n\
+      CRIAR novo usuário\n\
+      LER dados de usuário\n\
+      APAGAR usuário\n\
+      SAIR do programa\n"
+    );
+}
+
+fn get_user_input() -> Option<MenuActions> {
+    let input = prompt_user("Escolha sua opção: ");
+    println!("\n");
+
+    match input.to_lowercase().trim() {
+        "listar" => Some(MenuActions::List),
+        "criar" => Some(MenuActions::Create),
+        "ler" => Some(MenuActions::Read),
+        "apagar" => Some(MenuActions::Delete),
+        "sair" => Some(MenuActions::Exit),
+        _ => None,
     }
 }
 
@@ -62,32 +92,9 @@ fn read_user(user_list: &Vec<User>) {
     user_list.get(chosen_pos).unwrap().read();
 }
 
-fn print_menu() {
-    println!(
-        "LISTAR todos usuários\n\
-      CRIAR novo usuário\n\
-      LER dados de usuário\n\
-      APAGAR usuário\n"
-    );
-}
-
-pub fn prompt_user(prompt: &str) -> String {
-    let mut input = String::new();
-    print!("{}", prompt);
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut input).unwrap().to_string();
-    input.trim().to_string()
-}
-
-fn get_user_input() -> Option<MenuActions> {
-    let input = prompt_user("Escolha sua opção: ");
-    println!("\n");
-
-    match input.to_lowercase().trim() {
-        "listar" => Some(MenuActions::List),
-        "criar" => Some(MenuActions::Create),
-        "ler" => Some(MenuActions::Read),
-        "apagar" => Some(MenuActions::Delete),
-        _ => None,
+fn exit_program(user_list: &Vec<User>) {
+    match write_users_to_file(user_list) {
+        Ok(msg) => println!("{msg}"),
+        Err(msg) => println!("{msg}"),
     }
 }
